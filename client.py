@@ -10,8 +10,11 @@ class Client:
     def send_msg(self):
         try:
             while True:
-                msg = input("# ").lower()
-                self.socket.send(msg.encode('utf-8'))
+                message = input("# ")
+                self.socket.send(message.encode('utf-8'))
+                if message == "6":
+                    self.socket.close()
+                    break
         except Exception as error:
             print(f"Ocurrio un error al mandar un mensaje: {error}")
             
@@ -19,9 +22,11 @@ class Client:
         try:
             while True:
                 response = self.socket.recv(1024).decode('utf-8')
+                if not response:
+                    break
                 print(response)
-        except Exception as error:
-            print(f"Ocurrio un error al recibir un mensaje: {error}")
+        except (OSError, Exception) as error:
+            pass
 
     def start(self):
         try:
@@ -30,8 +35,10 @@ class Client:
             print("Conectado al servidor")
 
             # Hilo de recibir informacion del servidor
-            threading.Thread(target=self.recieve_msg).start()
+            threading.Thread(target=self.recieve_msg, daemon=True).start()
 
+            threading.Thread(target=self.send_msg, daemon=True).start()
+            
             # Funcion que permite enviar datos al servidor
             self.send_msg()
         except KeyboardInterrupt:
