@@ -8,6 +8,9 @@ class Client:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def send_msg(self):
+        """
+        Esta función tiene como fin mandarle un mensaje al servidor
+        """
         try:
             while True:
                 message = input("# ")
@@ -19,6 +22,9 @@ class Client:
             print(f"Ocurrio un error al mandar un mensaje: {error}")
             
     def recieve_msg(self):
+        """
+        Esta función tiene como fin recibir mensajes enviados desde el servidor
+        """
         try:
             while True:
                 response = self.socket.recv(1024).decode('utf-8')
@@ -29,6 +35,10 @@ class Client:
             pass
 
     def start(self):
+        """
+        Esta función permite poner en funcionamiento el socket del cliente para conectarse al servidor predeterminado.
+        Utiliza dos hilos, uno para recibir la información y otro para enviarla.
+        """
         try:
             # Conexión al servidor
             self.socket.connect((HOST, PORT))
