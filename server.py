@@ -11,11 +11,31 @@ class Server:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def users_online(self):
+        """
+        Esta función permite ver los usuarios conectados.
+
+        Returns:
+        -------
+        str: Retorna el nombre de todos los usuarios conectados.
+        """
         if len(clients) == 0:
             return "No hay nadie conectado."
         return "\n".join(f"\n{user["username"]}\n" for user in clients)
 
     def register(self, client, username: str, password: str):
+        """
+        Esta función permite a los usuarios registrarse en el servidor.
+
+        Args:
+        ----
+        client: Instancia de cliente del usuario.
+        username (str): Nombre del usuario.
+        password (str): Contraseña del usuario.
+
+        Returns:
+        -------
+        bool: Retorna una booleano que representa que se creo efectivamente la cuenta del usuario.
+        """
         if not username or not password:
             raise Exception("Ingrese los datos correspondientes")
         
@@ -28,6 +48,13 @@ class Server:
         return True
     
     def disconnect(self, user_instance):
+        """
+        Esta función permite desconectarse a los usuarios.
+
+        Args:
+        ----
+        user_instance: Instancia del usuario.
+        """
         for user in clients:
             if user["username"] == user_instance:
                 clients.remove(user)
@@ -35,21 +62,50 @@ class Server:
                 break
 
     def authenticate(self, username: str, password: str):
+        """
+        Esta función permite autenticar al usuario
+
+        Args:
+        ----
+        username (str): Nombre del usuario
+        password (str): Contraseña del usuario
+
+        Returns:
+        -------
+        user: Retorna la instacia de usuario si es que existe.
+        None: Retorna None si no existe el usuario.
+        """
         for user in clients:
             if user["username"] == username and user["password"] == password:
                 return user
         return None
     
-    def send_msg_to_all_users_online(self, msg, user_instance):
+    def send_msg_to_all_users_online(self, message, user_instance):
+        """
+        Esta función permite enviar mensaje a todos los usuarios conectados.
+
+        Args:
+        ----
+        message: Mensaje del usuario.
+        user_instance: Instancia de usuario emisor.
+        """
         try:
             for user in clients:
-                user["client"].send(f"\n[+] Mensaje de {user_instance}: {msg}\n".encode())
+                user["client"].send(f"\n[+] Mensaje de {user_instance}: {message}\n".encode())
         except Exception as error:
             print(f"Error enviando a {user['username']}: {error}")
             clients.remove(user)
 
     def send_msg_to_user(self, message, user_issuer, user_receiver):
-        
+        """
+        Esta función sirve para mandar mensajes entre usuarios
+
+        Args:
+        ----
+        message (str): Mensaje del usuario.
+        user_issuer: Instancia de usuario del emisor
+        user_receiver: Instancia del cliente del usuario que va a recibir el mensaje.
+        """
         try:
             for user in clients:
                 if not user["username"]:
@@ -60,13 +116,24 @@ class Server:
             clients.remove(user)
 
     def shutdown_socket(self):
+        """
+        Esta función permite apagar el servidor.
+        """
         try:
             self.socket.close()
             print("Server apagado")
         except Exception as error:
             print(f"Ocurrio un error al apagar el server: {error}")
 
-    def conversation_with_client(self, client, address):
+    def conversation_with_client(self, client):
+        """
+        Esta función permite la conversación con el cliente y el servidor, 
+        permitiendo interactuar con diferentes funciones de este.
+
+        Args:
+        ----
+        client: Instancia de cliente del usuario.
+        """
         # Variable de control de usuario
         user = None
         try:
@@ -156,6 +223,10 @@ class Server:
             self.shutdown_socket()
             
     def start(self):
+        """
+        Esta función permite poner en funcionamiento el servidor,
+        este utiliza hilos para manejar la conversación con los diferentes usuarios que se vayan conectando.
+        """
         try:
             # Setteo del socket a un HOST y un PORT
             self.socket.bind((HOST, PORT))
@@ -178,5 +249,5 @@ class Server:
             print(f"Servidor apagado")
             self.shutdown_socket()
 
-a = Server()
-a.start()
+server = Server()
+server.start()
